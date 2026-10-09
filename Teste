@@ -1,0 +1,599 @@
+
+
+Players = game:GetService("Players")
+UserInputService = game:GetService("UserInputService")
+TweenService = game:GetService("TweenService")
+RunService = game:GetService("RunService")
+HttpService = game:GetService("HttpService")
+Lighting = game:GetService("Lighting")
+Workspace = game:GetService("Workspace")
+Stats = game:GetService("Stats")
+MaterialService = game:GetService("MaterialService")
+ReplicatedStorage = game:GetService("ReplicatedStorage")
+SoundService = game:GetService("SoundService")
+StarterGui = game:GetService("StarterGui")
+CoreGui = game:GetService("CoreGui")
+
+
+_syn = rawget((getgenv and getgenv()) or _G, "syn") or rawget(_G, "syn")
+
+if type(protectgui) ~= "function" and _syn and type(_syn.protect_gui) == "function" then
+    protectgui = _syn.protect_gui
+end
+
+if type(getcustomasset) ~= "function" then
+    if type(getexecutorasset) == "function" then
+        getcustomasset = getexecutorasset
+    elseif type(getsynasset) == "function" then
+        getcustomasset = getsynasset
+    elseif _syn and type(_syn.getcustomasset) == "function" then
+        getcustomasset = _syn.getcustomasset
+    elseif _syn and type(_syn.getsynasset) == "function" then
+        getcustomasset = _syn.getsynasset
+    end
+end
+
+--Leaked By Xlu0 AndPrime--
+if type(isfile) ~= "function" and _syn and type(_syn.isfile) == "function" then isfile = _syn.isfile end
+if type(readfile) ~= "function" and _syn and type(_syn.readfile) == "function" then readfile = _syn.readfile end
+if type(writefile) ~= "function" and _syn and type(_syn.writefile) == "function" then writefile = _syn.writefile end
+if type(delfile) ~= "function" and _syn and type(_syn.delfile) == "function" then delfile = _syn.delfile end
+
+--Leaked By Xlu0 AndPrime--
+if type(getconnections) ~= "function" then
+    if type(get_signal_cons) == "function" then
+        getconnections = get_signal_cons
+    elseif type(getconnects) == "function" then
+        getconnections = getconnects
+    elseif _syn and type(_syn.get_signal_cons) == "function" then
+        getconnections = _syn.get_signal_cons
+    end
+end
+
+--Leaked By Xlu0 AndPrime--
+function _xluCompatGuiParent()
+    if type(gethui) == "function" then
+        local ok, parent = pcall(gethui)
+        if ok and parent then return parent end
+    end
+    local okCore, core = pcall(function() return CoreGui end)
+    if okCore and core then return core end
+    return nil
+end
+
+LP = Players.LocalPlayer
+PlayerGui = LP:WaitForChild("PlayerGui")
+--Leaked By Xlu0 AndPrime--
+function getUndetectedGuiParent()
+    --Leaked By Xlu0 AndPrime--
+    if type(gethui) == "function" then
+        local ok, parent = pcall(gethui)
+        if ok and parent then return parent end
+    end
+    --Leaked By Xlu0 AndPrime--
+    if protectgui then
+        return game:GetService("CoreGui")
+    end
+    --Leaked By Xlu0 AndPrime--
+    local cg = game:GetService("CoreGui")
+    if cg then return cg end
+    --Leaked By Xlu0 AndPrime--
+    return PlayerGui
+end
+
+function safeParentGui(gui)
+    pcall(function()
+        if type(gethui) == "function" then
+            local ok, parent = pcall(gethui)
+            if ok and parent then
+                gui.Parent = parent
+                return
+            end
+        end
+        if protectgui then
+            gui.Parent = game:GetService("CoreGui")
+            pcall(function() protectgui(gui) end)
+            return
+        end
+        gui.Parent = game:GetService("CoreGui")
+    end)
+    --Leaked By Xlu0 AndPrime--
+    if not gui.Parent then
+        pcall(function() gui.Parent = PlayerGui end)
+    end
+end
+
+
+
+AdaptAutoMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+_G.AdaptIsMobile = AdaptAutoMobile
+_G.AdaptDeviceMode = AdaptAutoMobile and "MOBILE" or "PC"
+
+for _, name in ipairs({"VENOMtDuelsAdaptReconstruct", "VENOMHubPolished", "CyberHub"}) do
+old = PlayerGui:FindFirstChild(name)
+if old then old:Destroy() end
+end
+NS = 60
+CS = 30
+LAGGER_SPEED = 29
+LAGGER_CARRY_SPEED = 15
+currentSpeedMode = "Normal"
+speedBoosterEnabled = true
+autoCarrySpeedEnabled = false
+setAutoCarrySpeedVisual = nil
+_G.AdaptAutoCarryWasCarrying = false
+_G.AdaptAutoCarrySavedMode = nil
+autoStealEnabled = false
+selectedStealMode = "Auto Steal V3"
+autoStealRadius = 63
+_G.AdaptStealRadii = _G.AdaptStealRadii or {["Auto Steal V3"] = 63, Semi = 9}
+_G.AdaptStealRadii["Auto Steal V3"] = tonumber(_G.AdaptStealRadii["Auto Steal V3"] or _G.AdaptStealRadii.Normal) or 63
+autoStealRadiusBox = nil
+selectedAimbotMode = "Normal"
+AIMBOT_SPEED = 58
+LAGGER_AIMBOT_SPEED = 40
+_G.AdaptAntiBypassAimbotSpeed = _G.AdaptAntiBypassAimbotSpeed or 58
+if _G.AdaptAntiBypassLaggerAimbotSpeed == nil or tonumber(_G.AdaptAntiBypassLaggerAimbotSpeed) == 58 then _G.AdaptAntiBypassLaggerAimbotSpeed = 40 end
+autoSwingEnabled = false
+mirrorTPDownEnabled = false
+_G.AdaptNormalAimbotOn = _G.AdaptNormalAimbotOn or false
+_G.AdaptAntiBypassAimbotOn = _G.AdaptAntiBypassAimbotOn or false
+antiDesyncAutoSwingEnabled = false
+_G.AdaptAntiDesyncAimbotOn = _G.AdaptAntiDesyncAimbotOn or false
+ANTI_DESYNC_AIMBOT_SPEED = 58
+batCounterEnabled = false
+medCounterEnabled = false
+hardHitEnabled = false
+hardHitRadius = 10
+perfectHitEnabled = false
+perfectHitRange = 175
+_G.AdaptPerfectHitEnabled = false
+_G.AdaptHardHitEnabled = false
+_G.AdaptHardHitRadius = 10
+antiKickEnabled = false
+setSafeModeVisual = nil
+autoResetOnMedEnabled = false
+espEnabled = false
+showTracerEnabled = false
+ragdollCountdownEnabled = true
+fpsBoostEnabled = false
+antiLagVisualEnabled = false
+nukeOptimiserEnabled = false
+fovEnabled = false
+fovValue = 70
+noCamCollisionEnabled = false
+_G.AdaptNoPlayerCollisionEnabled = _G.AdaptNoPlayerCollisionEnabled or false
+customFontVisualEnabled = false
+_G.AdaptCustomFontSelected = _G.AdaptCustomFontSelected or "None"
+skyTheme = "Night"
+setPlayerESPVisual = nil
+setTracerESPVisual = nil
+setRagdollCountdownVisual = nil
+setFPSBoostVisual = nil
+setAntiLagVisual = nil
+setNukeOptimiserVisual = nil
+setFOVVisual = nil
+setNoCamCollisionVisual = nil
+_G.AdaptSetNoPlayerCollisionVisual = _G.AdaptSetNoPlayerCollisionVisual or nil
+setCustomFontVisual = nil
+skyValueLabel = nil
+autoLeftEnabled = false
+autoRightEnabled = false
+DEFAULT_SPEED_KEYBINDS = {
+SpeedToggle = Enum.KeyCode.Q,
+LaggerToggle = Enum.KeyCode.R,
+DropBrainrot = Enum.KeyCode.X,
+Aimbot = Enum.KeyCode.E,
+AntiDesyncAimbot = Enum.KeyCode.V,
+AutoLeft = Enum.KeyCode.Z,
+AutoRight = Enum.KeyCode.C,
+ToggleUI = Enum.KeyCode.LeftControl,
+}
+DEFAULT_TP_DOWN_KEYBIND = Enum.KeyCode.F
+speedKeybinds = {
+SpeedToggle = DEFAULT_SPEED_KEYBINDS.SpeedToggle,
+LaggerToggle = DEFAULT_SPEED_KEYBINDS.LaggerToggle,
+DropBrainrot = DEFAULT_SPEED_KEYBINDS.DropBrainrot,
+Aimbot = DEFAULT_SPEED_KEYBINDS.Aimbot,
+AntiDesyncAimbot = DEFAULT_SPEED_KEYBINDS.AntiDesyncAimbot,
+AutoLeft = DEFAULT_SPEED_KEYBINDS.AutoLeft,
+AutoRight = DEFAULT_SPEED_KEYBINDS.AutoRight,
+ToggleUI = DEFAULT_SPEED_KEYBINDS.ToggleUI,
+}
+speedKeybindButtons = {}
+listeningForSpeedKey = nil
+autoTPEnabled = false
+autoTPHeight = 20
+autoTPConn = nil
+autoTPLastRun = 0
+autoTPClickDebounce = false
+tpDownKeybind = Enum.KeyCode.F
+tpDownKeybindButton = nil
+listeningForTPDownKey = false
+keybindListenStartedAt = 0
+setAutoTPVisual = nil
+function doAutoTPDown(force)
+    local char = LP.Character
+    if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    local hum2 = char:FindFirstChildOfClass("Humanoid")
+    if not hum2 then return end
+    if not force then
+        if hum2.FloorMaterial ~= Enum.Material.Air then return end
+        if not (hrp.Position.Y >= (tonumber(autoTPHeight) or 20)) then return end
+    end
+    local yaw = select(2, hrp.CFrame:ToEulerAnglesYXZ())
+    hrp.CFrame = CFrame.new(hrp.Position.X, -7.00, hrp.Position.Z) * CFrame.Angles(0, yaw, 0)
+    hrp.AssemblyLinearVelocity = Vector3.zero
+    hrp.AssemblyAngularVelocity = Vector3.zero
+    pcall(function() hrp.Velocity = Vector3.zero end)
+    pcall(function() hrp.RotVelocity = Vector3.zero end)
+end
+local function _clearAutoTPConnection()
+if autoTPConn then
+pcall(function() autoTPConn:Disconnect() end)
+pcall(function() task.cancel(autoTPConn) end)
+autoTPConn = nil
+end
+end
+local function startAutoTP()
+autoTPEnabled = true
+_clearAutoTPConnection()
+autoTPLastRun = 0
+autoTPConn = RunService.Heartbeat:Connect(function()
+if not autoTPEnabled then
+_clearAutoTPConnection()
+return
+end
+local now = tick()
+if now - autoTPLastRun < 0.1 then return end
+autoTPLastRun = now
+pcall(function() doAutoTPDown(false) end)
+end)
+if setAutoTPVisual then setAutoTPVisual(true) end
+end
+local function stopAutoTP()
+autoTPEnabled = false
+_clearAutoTPConnection()
+if setAutoTPVisual then setAutoTPVisual(false) end
+end
+local function runTPFloor()
+pcall(function() doAutoTPDown(true) end)
+end
+local function toggleAutoTP(on)
+if on then
+startAutoTP()
+else
+stopAutoTP()
+end
+if saveAdaptConfig then pcall(saveAdaptConfig) end
+end
+function _G.AdaptStopAutoTPForAction()
+if autoTPEnabled then
+stopAutoTP()
+pcall(function() if setAutoTPVisual then setAutoTPVisual(false) end end)
+if saveAdaptConfig then pcall(saveAdaptConfig) end
+end
+end
+local dropBrainrotActive = false
+local _adaptDropConns = {}
+
+_G.AdaptDropMode = (_G.AdaptDropMode == "Jump Drop") and "Jump Drop" or "Stand Drop"
+
+local _xDropLastInvoke = 0
+local _xDropConn = nil
+local function stopDropBrainrot()
+    dropBrainrotActive = false
+    if _xDropConn then
+        pcall(function() _xDropConn:Disconnect() end)
+        _xDropConn = nil
+    end
+    for _, t in ipairs(_adaptDropConns) do
+        if type(t) == "thread" then pcall(task.cancel, t)
+        elseif typeof(t) == "RBXScriptConnection" then pcall(function() t:Disconnect() end) end
+    end
+    _adaptDropConns = {}
+    local c = LP.Character
+    if c then
+        local root = c:FindFirstChild("HumanoidRootPart")
+        if root then
+            root.AssemblyLinearVelocity = Vector3.zero
+            root.AssemblyAngularVelocity = Vector3.zero
+        end
+    end
+end
+
+local function runStandDrop()
+    if dropBrainrotActive then return end
+    local now = tick()
+    if now - _xDropLastInvoke < 0.2 then return end
+    _xDropLastInvoke = now
+    if _G.AdaptStopAutoTPForAction then _G.AdaptStopAutoTPForAction() end
+    local char = LP.Character
+    if not char then return end
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+    dropBrainrotActive = true
+    local startTime = tick()
+    _xDropConn = RunService.Heartbeat:Connect(function()
+        local currentChar = LP.Character
+        local currentRoot = currentChar and currentChar:FindFirstChild("HumanoidRootPart")
+        if not currentChar or not currentRoot then
+            stopDropBrainrot()
+            return
+        end
+        if tick() - startTime >= (_G.AdaptDropAscendDuration or 0.2) then
+            if _xDropConn then pcall(function() _xDropConn:Disconnect() end); _xDropConn = nil end
+            local rayParams = RaycastParams.new()
+            rayParams.FilterDescendantsInstances = {currentChar}
+            rayParams.FilterType = Enum.RaycastFilterType.Exclude
+            local rayResult = workspace:Raycast(currentRoot.Position, Vector3.new(0, -2000, 0), rayParams)
+            if rayResult then
+                local hum = currentChar:FindFirstChildOfClass("Humanoid")
+                local offset = (hum and hum.HipHeight or 2) + (currentRoot.Size.Y / 2)
+                currentRoot.CFrame = CFrame.new(currentRoot.Position.X, rayResult.Position.Y + offset, currentRoot.Position.Z)
+                    * CFrame.Angles(0, select(2, currentRoot.CFrame:ToEulerAnglesYXZ()), 0)
+                currentRoot.AssemblyLinearVelocity = Vector3.zero
+                currentRoot.AssemblyAngularVelocity = Vector3.zero
+            end
+            dropBrainrotActive = false
+            return
+        end
+        local v = currentRoot.AssemblyLinearVelocity
+        local up = tonumber(_G.AdaptDropAscendSpeed) or 150
+        pcall(function()
+            currentRoot.AssemblyLinearVelocity = Vector3.new(v.X, up, v.Z)
+        end)
+    end)
+    task.delay(1.0, function()
+        if dropBrainrotActive then stopDropBrainrot() end
+    end)
+end
+
+_G.AdaptJumpDropActive = false
+_G.AdaptJumpDropAscendDuration = 0.2
+_G.AdaptJumpDropAscendSpeed = 150
+_G.AdaptDropAscendDuration = _G.AdaptDropAscendDuration or 0.2
+_G.AdaptDropAscendSpeed    = _G.AdaptDropAscendSpeed    or 150
+
+function _G.AdaptRunJumpDrop()
+if _G.AdaptJumpDropActive then return end
+if _G.AdaptStopAutoTPForAction then pcall(_G.AdaptStopAutoTPForAction) end
+
+local char = LP.Character
+local root = char and char:FindFirstChild("HumanoidRootPart")
+if not char or not root then return end
+
+_G.AdaptJumpDropActive = true
+local startTime = tick()
+
+_G.AdaptJumpDropConn = RunService.Heartbeat:Connect(function()
+local currentChar = LP.Character
+local currentRoot = currentChar and currentChar:FindFirstChild("HumanoidRootPart")
+
+if not currentChar or not currentRoot then
+if _G.AdaptJumpDropConn then
+pcall(function() _G.AdaptJumpDropConn:Disconnect() end)
+_G.AdaptJumpDropConn = nil
+end
+_G.AdaptJumpDropActive = false
+return
+end
+
+if tick() - startTime >= _G.AdaptJumpDropAscendDuration then
+if _G.AdaptJumpDropConn then
+pcall(function() _G.AdaptJumpDropConn:Disconnect() end)
+_G.AdaptJumpDropConn = nil
+end
+
+local rayParams = RaycastParams.new()
+rayParams.FilterDescendantsInstances = {currentChar}
+rayParams.FilterType = Enum.RaycastFilterType.Exclude
+
+local rayResult = workspace:Raycast(currentRoot.Position, Vector3.new(0, -2000, 0), rayParams)
+if rayResult then
+local hum = currentChar:FindFirstChildOfClass("Humanoid")
+local offset = (hum and hum.HipHeight or 2) + (currentRoot.Size.Y / 2)
+currentRoot.CFrame = CFrame.new(currentRoot.Position.X, rayResult.Position.Y + offset, currentRoot.Position.Z)
+currentRoot.AssemblyLinearVelocity = Vector3.zero
+currentRoot.AssemblyAngularVelocity = Vector3.zero
+end
+
+_G.AdaptJumpDropActive = false
+return
+end
+
+local _jdCur = currentRoot.AssemblyLinearVelocity
+currentRoot.AssemblyLinearVelocity = Vector3.new(
+_jdCur.X,
+_G.AdaptJumpDropAscendSpeed,
+_jdCur.Z
+)
+end)
+end
+
+function runDrop()
+if _G.AdaptDropMode == "Jump Drop" then
+_G.AdaptRunJumpDrop()
+else
+runStandDrop()
+end
+end
+
+function runDropBrainrot()
+runDrop()
+end
+
+local infJumpEnabled = false
+local antiRagdollEnabled = false
+local antiRagdollConn = nil
+_G.AdaptAntiRagdollMode = "Zombie Hub"
+
+_G.AdaptAntiVoidEnabled = _G.AdaptAntiVoidEnabled == true
+_G.AdaptAntiVoidConnection = _G.AdaptAntiVoidConnection or nil
+_G.AdaptAntiVoidSafeCFrame = _G.AdaptAntiVoidSafeCFrame or nil
+
+function _G.AdaptAntiVoidSaveSafe()
+    local char = LP.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not hum or not root or hum.Health <= 0 then return end
+    if hum.FloorMaterial ~= Enum.Material.Air then
+        _G.AdaptAntiVoidSafeCFrame = root.CFrame
+    end
+end
+
+function _G.AdaptAntiVoidStop()
+    if _G.AdaptAntiVoidConnection then
+        pcall(function() _G.AdaptAntiVoidConnection:Disconnect() end)
+        _G.AdaptAntiVoidConnection = nil
+    end
+end
+
+function _G.AdaptAntiVoidSet(on)
+    _G.AdaptAntiVoidEnabled = on == true
+    _G.AdaptAntiVoidStop()
+    if not _G.AdaptAntiVoidEnabled then return end
+
+    _G.AdaptAntiVoidSaveSafe()
+
+    _G.AdaptAntiVoidConnection = RunService.Heartbeat:Connect(function()
+        local char = LP.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        local root = char and char:FindFirstChild("HumanoidRootPart")
+        if not _G.AdaptAntiVoidEnabled or not hum or not root or hum.Health <= 0 then return end
+
+        local voidY = Workspace.FallenPartsDestroyHeight + 30
+        if hum.FloorMaterial ~= Enum.Material.Air and root.Position.Y > voidY + 12 then
+            _G.AdaptAntiVoidSafeCFrame = root.CFrame
+        elseif root.Position.Y <= voidY and _G.AdaptAntiVoidSafeCFrame then
+            root.AssemblyLinearVelocity = Vector3.zero
+            root.AssemblyAngularVelocity = Vector3.zero
+            root.CFrame = _G.AdaptAntiVoidSafeCFrame + Vector3.new(0, 4, 0)
+            hum.PlatformStand = false
+            hum.Sit = false
+            pcall(function() hum:ChangeState(Enum.HumanoidStateType.GettingUp) end)
+        end
+    end)
+end
+local unwalkEnabled = false
+local unwalkSavedAnimate = nil
+local hitHarderAnimEnabled = false
+local hitHarderOriginalAnims = {}
+local selectedAnimationPack = "OFF"
+
+local AnimationPacks = {
+["Zombie"] = {
+idle = {{"rbxassetid://616158929", 1}, {"rbxassetid://616160636", 1}},
+walk = "rbxassetid://616168032",
+run = "rbxassetid://616163682",
+jump = "rbxassetid://616161997",
+fall = "rbxassetid://616157476",
+climb = "rbxassetid://616156119",
+swim = "rbxassetid://616165109",
+swimidle = "rbxassetid://616166655",
+},
+["Ninja"] = {
+idle = {{"rbxassetid://656117400", 1}, {"rbxassetid://656117400", 1}},
+walk = "rbxassetid://656121766",
+run = "rbxassetid://656118852",
+jump = "rbxassetid://656117878",
+fall = "rbxassetid://656115606",
+climb = "rbxassetid://656114359",
+},
+["Knight"] = {
+idle = {{"rbxassetid://657595757", 1}, {"rbxassetid://657595757", 1}},
+walk = "rbxassetid://657552124",
+run = "rbxassetid://657564596",
+jump = "rbxassetid://658409194",
+fall = "rbxassetid://657600338",
+climb = "rbxassetid://658360781",
+},
+["Elder"] = {
+idle = {{"rbxassetid://845397899", 1}, {"rbxassetid://845397899", 1}},
+walk = "rbxassetid://845403856",
+run = "rbxassetid://845386501",
+jump = "rbxassetid://845398858",
+fall = "rbxassetid://845397673",
+climb = "rbxassetid://845392038",
+},
+["Levitate"] = {
+idle = {{"rbxassetid://616006778", 1}, {"rbxassetid://616006778", 1}},
+walk = "rbxassetid://616013216",
+run = "rbxassetid://616013216",
+jump = "rbxassetid://616008936",
+fall = "rbxassetid://616005863",
+climb = "rbxassetid://616003713",
+},
+["Astronaut"] = {
+idle = {{"rbxassetid://891621366", 1}, {"rbxassetid://891621366", 1}},
+walk = "rbxassetid://891636393",
+run = "rbxassetid://891636393",
+jump = "rbxassetid://891627522",
+fall = "rbxassetid://891617961",
+climb = "rbxassetid://891609353",
+},
+["Pirate"] = {
+idle = {{"rbxassetid://750781874", 1}, {"rbxassetid://750781874", 1}},
+walk = "rbxassetid://750785693",
+run = "rbxassetid://750783738",
+jump = "rbxassetid://750782230",
+fall = "rbxassetid://750780242",
+climb = "rbxassetid://750779899",
+},
+["Toy"] = {
+idle = {{"rbxassetid://782841498", 1}, {"rbxassetid://782841498", 1}},
+walk = "rbxassetid://782843345",
+run = "rbxassetid://782842708",
+jump = "rbxassetid://782847020",
+fall = "rbxassetid://782846423",
+climb = "rbxassetid://782843869",
+},
+["Vampire"] = {
+idle = {{"rbxassetid://1083445855", 1}, {"rbxassetid://1083445855", 1}},
+walk = "rbxassetid://1083473930",
+run = "rbxassetid://1083462077",
+jump = "rbxassetid://1083455352",
+fall = "rbxassetid://1083443587",
+climb = "rbxassetid://1083439238",
+},
+["Werewolf"] = {
+idle = {{"rbxassetid://1083195517", 1}, {"rbxassetid://1083195517", 1}},
+walk = "rbxassetid://1083178339",
+run = "rbxassetid://1083216690",
+jump = "rbxassetid://1083218792",
+fall = "rbxassetid://1083189019",
+climb = "rbxassetid://1083182000",
+},
+["Rthro"] = {
+idle = {{"rbxassetid://2510196951", 1}, {"rbxassetid://2510196951", 1}},
+walk = "rbxassetid://2510202577",
+run = "rbxassetid://2510198475",
+jump = "rbxassetid://2510197830",
+fall = "rbxassetid://2510195892",
+climb = "rbxassetid://2510192778",
+},
+["Stylish"] = {
+idle = {{"rbxassetid://616136790", 1}, {"rbxassetid://616136790", 1}},
+walk = "rbxassetid://616146177",
+run = "rbxassetid://616140816",
+jump = "rbxassetid://616139451",
+fall = "rbxassetid://616134815",
+climb = "rbxassetid://616133594",
+},
+}
+
+local AnimationPackList = {"OFF","Zombie","Ninja","Knight","Elder","Levitate","Astronaut","Pirate","Toy","Vampire","Werewolf","Rthro","Stylish"}
+local AnimationPackIndex = 1
+local OriginalAnims = {}
+local animationPackValueLabel = nil
+local refreshAnimationPackRow = nil
+
+_G.AdaptAnimationSystem = _G.AdaptAnimationSystem or {
+    conn = nil,
+    original = nil,
+    activePack = "OFF",
+}
+
+function _G.Ad
